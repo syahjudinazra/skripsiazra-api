@@ -90,7 +90,9 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $product->update($request->all());
 
-        return response()->json('data berhasil diupdate');
+        return response()->json([
+            'data' => $product
+        ]);
     }
 
     /**
@@ -101,6 +103,11 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $product = Product::findOrFail($id);
+        $product->delete();
+
+        return response()->json([
+            'data' => $product
+        ]);
     }
 }
