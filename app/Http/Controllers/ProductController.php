@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -92,43 +91,18 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // $validated = $request->validate([
-        //     'nama' => 'max:255',
-        //     'serialnumber' => 'max:255',
-        // ]);
-
-        // $product = Product::findOrFail($id);
-
-        // $product->update($request->all());
-
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => 'Data berhasil diupdate.',
-        //     'data' => $product
-        // ], Response::HTTP_OK);
-
-        //define validation rules
-
         $validated = $request->validate([
             'nama' => 'required|max:255',
             'serialnumber' => 'required',
         ]);
 
-        $data = Product::find($id);
-
-        if (!$data) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data not found.',
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        $data->update($request->all());
+        $product = Product::findOrFail($id);
+        $product->update($request->all());
 
         return response()->json([
             'success' => true,
-            'message' => 'Data updated successfully.',
-            'data' => $data,
+            'message' => 'Data berhasil diupdate.',
+            'data' => $product
         ], Response::HTTP_OK);
     }
 
