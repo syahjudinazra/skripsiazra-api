@@ -5,10 +5,36 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response(['errors' => $validator->errors()->all()], 422);
+        }
+
+        event(new Registered($user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ])));
+
+        return response()->json([
+            'message' => 'Successfully registered',
+            'user' => $user
+        ], 201);
+    }
+
     public function login(Request $request)
     {
         $request->validate([
@@ -24,7 +50,13 @@ class AuthController extends Controller
             ]);
         }
 
-        return $user->createToken('userlogin')->plainTextToken;
+        $token = $user->createToken('userlogin')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Successfully logged in',
+            'user' => $user,
+            'token' => $token
+        ], 200);
     }
 
     public function logout(Request $request)

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -16,8 +18,10 @@ class ProductController extends Controller
     {
         $product = Product::all();
         return response()->json([
+            'success' => true,
+            'message' => 'Data berhasil diterima',
             'data' => $product
-        ]);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -45,7 +49,11 @@ class ProductController extends Controller
 
         $product = Product::create($request->all());
 
-        return response()->json();
+        return response()->json([
+            'success' => true,
+            'message' => 'Data berhasil dibuat',
+            'data' => $product
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -58,8 +66,10 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         return response()->json([
+            'success' => true,
+            'message' => 'Data ditemukan',
             'data' => $product
-        ]);
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -82,17 +92,44 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // $validated = $request->validate([
+        //     'nama' => 'max:255',
+        //     'serialnumber' => 'max:255',
+        // ]);
+
+        // $product = Product::findOrFail($id);
+
+        // $product->update($request->all());
+
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Data berhasil diupdate.',
+        //     'data' => $product
+        // ], Response::HTTP_OK);
+
+        //define validation rules
+
         $validated = $request->validate([
             'nama' => 'required|max:255',
             'serialnumber' => 'required',
         ]);
 
-        $product = Product::findOrFail($id);
-        $product->update($request->all());
+        $data = Product::find($id);
+
+        if (!$data) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data not found.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $data->update($request->all());
 
         return response()->json([
-            'data' => $product
-        ]);
+            'success' => true,
+            'message' => 'Data updated successfully.',
+            'data' => $data,
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -107,6 +144,8 @@ class ProductController extends Controller
         $product->delete();
 
         return response()->json([
+            'success' => true,
+            'message' => 'Data berhasil dihapus.',
             'data' => $product
         ]);
     }
