@@ -16,11 +16,11 @@ use App\Http\Controllers\ProductController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['auth:api'])->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::post('/product', [ProductController::class, 'store']);
     Route::get('/product', [ProductController::class, 'index']);
