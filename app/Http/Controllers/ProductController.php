@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -19,7 +20,7 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data berhasil diterima',
-            'data' => $product
+            'product' => $product
         ], Response::HTTP_OK);
     }
 
@@ -41,17 +42,29 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'nama' => 'required|max:255',
             'serialnumber' => 'required',
         ]);
 
-        $product = Product::create($request->all());
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'errors' => $validator->messages(),
+            ], 422);
+        } else {
+
+            $product = Product::create([
+                'nama' => $request->nama,
+                'serialnumber' => $request->serialnumber,
+            ]);
+        }
+
 
         return response()->json([
             'success' => true,
             'message' => 'Data berhasil dibuat',
-            'data' => $product
+            'product' => $product
         ], Response::HTTP_CREATED);
     }
 
@@ -67,7 +80,7 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data ditemukan',
-            'data' => $product
+            'product' => $product
         ], Response::HTTP_OK);
     }
 
@@ -102,7 +115,7 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data berhasil diupdate.',
-            'data' => $product
+            'product' => $product
         ], Response::HTTP_OK);
     }
 
@@ -120,7 +133,7 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Data berhasil dihapus.',
-            'data' => $product
+            'product' => $product
         ]);
     }
 }
