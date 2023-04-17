@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
+use App\Models\Gudang;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
-class ProductController extends Controller
+class GudangController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,11 +16,11 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $product = Product::all();
+        $gudang = Gudang::all();
         return response()->json([
             'success' => true,
             'message' => 'Data berhasil diterima',
-            'product' => $product
+            'gudang' => $gudang
         ], Response::HTTP_OK);
     }
 
@@ -33,10 +33,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'serialnumber' => 'required',
             'nama' => 'required|max:255',
-            'ram' => 'required',
-            'android' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -46,19 +43,15 @@ class ProductController extends Controller
             ], 422);
         } else {
 
-            $product = Product::create([
-                'serialnumber' => $request->serialnumber,
+            $gudang = Gudang::create([
                 'nama' => $request->nama,
-                'ram' => $request->ram,
-                'android' => $request->android,
             ]);
         }
-
 
         return response()->json([
             'success' => true,
             'message' => 'Data berhasil dibuat',
-            'product' => $product
+            'gudang' => $gudang
         ], Response::HTTP_CREATED);
     }
 
@@ -70,12 +63,7 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::findOrFail($id);
-        return response()->json([
-            'success' => true,
-            'message' => 'Data ditemukan',
-            'product' => $product
-        ], Response::HTTP_OK);
+        //
     }
 
     /**
@@ -88,19 +76,16 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'serialnumber' => 'required',
             'nama' => 'required|max:255',
-            'ram' => 'required',
-            'android' => 'required',
         ]);
 
-        $product = Product::findOrFail($id);
-        $product->update($request->all());
+        $gudang = Gudang::findOrFail($id);
+        $gudang->update($request->all());
 
         return response()->json([
             'success' => true,
             'message' => 'Data berhasil diupdate.',
-            'product' => $product
+            'gudang' => $gudang
         ], Response::HTTP_OK);
     }
 
@@ -112,13 +97,13 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $product = Product::findOrFail($id);
-        $product->delete();
+        $gudang = Gudang::findOrFail($id);
+        $gudang->delete();
 
         return response()->json([
             'success' => true,
             'message' => 'Data berhasil dihapus.',
-            'product' => $product
+            'gudang' => $gudang
         ]);
     }
 }
