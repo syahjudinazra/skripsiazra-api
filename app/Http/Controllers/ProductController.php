@@ -85,6 +85,17 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    public function edit($id)
+    {
+        $product = Product::findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'message' => 'Data ditemukan',
+            'product' => $product
+        ], Response::HTTP_OK);
+    }
+
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
