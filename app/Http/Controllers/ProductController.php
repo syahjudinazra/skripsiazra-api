@@ -17,11 +17,20 @@ class ProductController extends Controller
     public function index()
     {
         $product = Product::all();
-        return response()->json([
-            'success' => true,
-            'message' => 'Data berhasil diterima',
-            'product' => $product
-        ], Response::HTTP_OK);
+        if ($product->count() > 0) {
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Data ditemukan',
+                'product' => $product
+            ], 200);
+        } else {
+
+            return response()->json([
+                'status' => 404,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
     }
 
     /**
@@ -52,14 +61,19 @@ class ProductController extends Controller
                 'ram' => $request->ram,
                 'android' => $request->android,
             ]);
+
+            if ($product) {
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Data berhasil dibuat',
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'Ada yang harus diperbaiki!!',
+                ], 500);
+            }
         }
-
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Data berhasil dibuat',
-            'product' => $product
-        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -70,12 +84,18 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::findOrFail($id);
-        return response()->json([
-            'success' => true,
-            'message' => 'Data ditemukan',
-            'product' => $product
-        ], Response::HTTP_OK);
+        $product = Product::find($id);
+        if ($product) {
+            return response()->json([
+                'status' => 200,
+                'product' => $product
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Data tidak ditemukan!',
+            ], 404);
+        }
     }
 
     /**
@@ -88,31 +108,57 @@ class ProductController extends Controller
 
     public function edit($id)
     {
-        $product = Product::findOrFail($id);
-        return response()->json([
-            'success' => true,
-            'message' => 'Data ditemukan',
-            'product' => $product
-        ], Response::HTTP_OK);
+        $product = Product::find($id);
+        if ($product) {
+            return response()->json([
+                'status' => 200,
+                'product' => $product
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Data tidak ditemukan!',
+            ], 404);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'serialnumber' => 'required',
             'nama' => 'required|max:255',
             'ram' => 'required',
             'android' => 'required',
         ]);
 
-        $product = Product::findOrFail($id);
-        $product->update($request->all());
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'errors' => $validator->messages(),
+            ], 422);
+        } else {
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data berhasil diupdate.',
-            'product' => $product
-        ], Response::HTTP_OK);
+            $product = Product::find($id);
+
+            if ($product) {
+                $product->update([
+                    'serialnumber' => $request->serialnumber,
+                    'nama' => $request->nama,
+                    'ram' => $request->ram,
+                    'android' => $request->android,
+                ]);
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Data berhasil diubah',
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'Data tidak ditemukan!',
+                ], 404);
+            }
+        }
     }
 
     /**
@@ -123,13 +169,14 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $product = Product::findOrFail($id);
-        $product->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Data berhasil dihapus.',
-            'product' => $product
-        ]);
+        $product = Product::find($id);
+        if ($product) {
+            $product->delete();
+        } else {
+            return response()->json([
+                'status' => 404,
+                'message' => 'Data tidak ditemukan!',
+            ], 404);
+        }
     }
 }
